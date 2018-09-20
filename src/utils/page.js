@@ -175,7 +175,7 @@ function timeout(ms) {
 async function goToUrl(page, url, navigationOptions) {
   debug("Navigating to URL %s", chalk.blue(url));
   let result = page.goto(url, navigationOptions);
-  await timeout(2000);
+  await timeout(5000);
   return result;
 }
 
