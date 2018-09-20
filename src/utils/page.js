@@ -12,6 +12,33 @@ async function getPreviews(page, { url, filter, viewport, navigationOptions }) {
   return page.evaluate(getPreviewsInPage, { filter, viewport });
 }
 
+async function boundingBoxNew(el) {
+  const { model } = await el._client.send("DOM.getBoxModel", {
+    objectId: el._remoteObject.objectId
+  });
+  if (!model) throw new Error("Node is detached from document");
+
+  const calculatePos = function(quad) {
+    const x = Math.min(quad[0], quad[2], quad[4], quad[6]);
+    const y = Math.min(quad[1], quad[3], quad[5], quad[7]);
+    return {
+      x: x,
+      y: y,
+      width: Math.max(quad[0], quad[2], quad[4], quad[6]) - x,
+      height: Math.max(quad[1], quad[3], quad[5], quad[7]) - y
+    };
+  };
+
+  return {
+    border: calculatePos(model.border),
+    content: calculatePos(model.content),
+    margin: calculatePos(model.margin),
+    padding: calculatePos(model.padding),
+    width: model.width,
+    height: model.height
+  };
+}
+
 function getPreviewsInPage({ filter, viewport }) {
   const shouldIncludePreview = name => {
     if (filter == null) {
@@ -30,7 +57,7 @@ function getPreviewsInPage({ filter, viewport }) {
     const description = el.dataset.description;
     const actionStates = el.dataset.actionStates;
     const previewSelector = el.dataset.previewSelector;
-    console.log(JSON.stringify(el.getBoundingClientRect(), null, 2));
+
     if (!shouldIncludePreview(name)) {
       return memo;
     }
@@ -112,8 +139,7 @@ async function takeNewScreenshotOfPreview(
 
   const boundingBoxEl = el;
 
-  const boundingBox = await boundingBoxEl.getBoundingClientRect();
-  console.log(JSON.stringify(boundingBox, null, 2));
+  const boundingBox = await boundingBoxEl.boundingBox();
 
   const path = await getRelativeFilepath(preview, index, actionState, dir);
   debug(
@@ -147,7 +173,7 @@ async function triggerAction(page, el, actionState) {
       await actionEl.click();
       break;
     case "mouseDown":
-      const box = await actionEl.getBoundingClientRect();
+      const box = await actionEl.boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.down();
       break;

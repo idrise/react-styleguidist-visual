@@ -52,7 +52,7 @@ const testDefaults = {
   dir: "styleguide-visual",
   filter: undefined,
   threshold: 0.001,
-  wait: 3,
+  wait: 3000,
   viewports: {
     desktop: {
       width: 800,
