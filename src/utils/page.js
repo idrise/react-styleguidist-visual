@@ -110,9 +110,11 @@ async function takeNewScreenshotOfPreview(
 
   await triggerAction(page, el, actionState);
 
-  const boundingBoxEl = preview.previewSelector
-    ? await page.$(preview.previewSelector)
-    : el;
+  // const boundingBoxEl = preview.previewSelector
+  //   ? await page.$(preview.previewSelector)
+  //   : el;
+  boundingBoxEl = el;
+
   const boundingBox = await boundingBoxEl.boundingBox();
 
   const path = await getRelativeFilepath(preview, index, actionState, dir);
