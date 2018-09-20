@@ -30,7 +30,7 @@ function getPreviewsInPage({ filter, viewport }) {
     const description = el.dataset.description;
     const actionStates = el.dataset.actionStates;
     const previewSelector = el.dataset.previewSelector;
-    console.log(JSON.stringify(el.getBoundingBox(), null, 2));
+    console.log(JSON.stringify(el.boundingBox(), null, 2));
     if (!shouldIncludePreview(name)) {
       return memo;
     }
@@ -116,6 +116,7 @@ async function takeNewScreenshotOfPreview(
 
   const boundingBox = await boundingBoxEl.boundingBox();
   console.log(JSON.stringify(boundingBox, null, 2));
+
   const path = await getRelativeFilepath(preview, index, actionState, dir);
   debug(
     "Storing screenshot of %s in %s",
