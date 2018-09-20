@@ -30,6 +30,8 @@ function getPreviewsInPage({ filter, viewport }) {
     const actionStates = el.dataset.actionStates;
     const previewSelector = el.dataset.previewSelector;
 
+    console.log(JSON.stringify(el, null, 2));
+
     if (!shouldIncludePreview(name)) {
       return memo;
     }
