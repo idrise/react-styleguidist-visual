@@ -114,7 +114,7 @@ async function takeNewScreenshotOfPreview(
     ? await page.$(preview.previewSelector)
     : el;
   if (boundingBoxEl === el) {
-    console.log('did not choose the preview");
+    console.log("did not choose the preview");
   }
   const boundingBox = await boundingBoxEl.boundingBox();
 
