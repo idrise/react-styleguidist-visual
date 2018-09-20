@@ -113,7 +113,7 @@ async function takeNewScreenshotOfPreview(
   // const boundingBoxEl = preview.previewSelector
   //   ? await page.$(preview.previewSelector)
   //   : el;
-  boundingBoxEl = el;
+  boundingBoxEl = await page.$(preview.previewSelector);
 
   const boundingBox = await boundingBoxEl.boundingBox();
 
