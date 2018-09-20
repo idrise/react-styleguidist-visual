@@ -19,7 +19,8 @@ function getPreviewsInPage({ filter, viewport }) {
     }
 
     return [].concat(filter).some(str => {
-      return str.toLowerCase() === name.toLowerCase();
+      const regexp = new RegExp(str.toLowerCase());
+      return regexp.test(name.toLowerCase());
     });
   };
 
@@ -29,9 +30,7 @@ function getPreviewsInPage({ filter, viewport }) {
     const description = el.dataset.description;
     const actionStates = el.dataset.actionStates;
     const previewSelector = el.dataset.previewSelector;
-
     console.log(JSON.stringify(el, null, 2));
-
     if (!shouldIncludePreview(name)) {
       return memo;
     }
@@ -111,11 +110,12 @@ async function takeNewScreenshotOfPreview(
 
   await triggerAction(page, el, actionState);
 
-  // const boundingBoxEl = preview.previewSelector
-  //   ? await page.$(preview.previewSelector)
-  //   : el;
-  boundingBoxEl = await page.$(preview.previewSelector);
-
+  const boundingBoxEl = preview.previewSelector
+    ? await page.$(preview.previewSelector)
+    : el;
+  if (boundingBoxEl === el) {
+    console.log('did not choose the preview");
+  }
   const boundingBox = await boundingBoxEl.boundingBox();
 
   const path = await getRelativeFilepath(preview, index, actionState, dir);
