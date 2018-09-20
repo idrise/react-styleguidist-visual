@@ -1,13 +1,13 @@
-const joi = require('joi')
-const puppeteer = require('puppeteer')
-const { getOptions } = require('../utils/options')
+const joi = require("joi");
+const puppeteer = require("puppeteer");
+const { getOptions } = require("../utils/options");
 const {
   checkForStaleRefScreenshots,
   compareNewScreenshotsToRefScreenshots,
   removeNonRefScreenshots
-} = require('../utils/image')
-const { getPreviews, takeNewScreenshotsOfPreviews } = require('../utils/page')
-const { debug, spinner } = require('../utils/debug')
+} = require("../utils/image");
+const { getPreviews, takeNewScreenshotsOfPreviews } = require("../utils/page");
+const { debug, spinner } = require("../utils/debug");
 
 const testSchema = joi
   .object()
@@ -44,12 +44,12 @@ const testSchema = joi
     launchOptions: joi.object(),
     connectOptions: joi.object(),
     navigationOptions: joi.object()
-  })
+  });
 
 const testDefaults = {
   url: undefined,
   sandbox: true,
-  dir: 'styleguide-visual',
+  dir: "styleguide-visual",
   filter: undefined,
   threshold: 0.001,
   wait: 0,
@@ -62,45 +62,69 @@ const testDefaults = {
   },
   launchOptions: {},
   connectOptions: undefined,
-  navigationOptions: {}
-}
+  navigationOptions: {
+    waitUntil: ["load", "domcontentloaded"]
+  }
+};
 
-async function test (partialOptions) {
-  let browser
-  const useConnect = partialOptions.connectOptions !== undefined
+async function test(partialOptions) {
+  let browser;
+  const useConnect = partialOptions.connectOptions !== undefined;
 
   try {
-    const options = await getOptions(partialOptions, testDefaults, testSchema)
-    const { url, dir, filter, threshold, wait, viewports, launchOptions, connectOptions, navigationOptions } = options
+    const options = await getOptions(partialOptions, testDefaults, testSchema);
+    const {
+      url,
+      dir,
+      filter,
+      threshold,
+      wait,
+      viewports,
+      launchOptions,
+      connectOptions,
+      navigationOptions
+    } = options;
 
-    await removeNonRefScreenshots({ dir, filter })
+    await removeNonRefScreenshots({ dir, filter });
 
-    browser = useConnect ? await puppeteer.connect(connectOptions) : await puppeteer.launch(launchOptions)
-    const page = await browser.newPage()
+    browser = useConnect
+      ? await puppeteer.connect(connectOptions)
+      : await puppeteer.launch(launchOptions);
+    const page = await browser.newPage();
 
     for (const viewport of Object.keys(viewports)) {
       const progress = spinner({
         start: `Taking screenshots for viewport ${viewport}`,
         update: `Taking screenshot of component %s of %s for viewport ${viewport}`,
         stop: `Finished taking screenshots for viewport ${viewport}`
-      })
-      progress.start()
-      await page.setViewport(viewports[viewport])
-      const previews = await getPreviews(page, { url, filter, viewport, navigationOptions })
-      await takeNewScreenshotsOfPreviews(page, previews, { dir, progress, navigationOptions, wait })
-      progress.stop()
+      });
+      progress.start();
+      await page.setViewport(viewports[viewport]);
+      const previews = await getPreviews(page, {
+        url,
+        filter,
+        viewport,
+        navigationOptions
+      });
+      await takeNewScreenshotsOfPreviews(page, previews, {
+        dir,
+        progress,
+        navigationOptions,
+        wait
+      });
+      progress.stop();
     }
 
-    await checkForStaleRefScreenshots({ dir, filter })
-    await compareNewScreenshotsToRefScreenshots({ dir, filter, threshold })
+    await checkForStaleRefScreenshots({ dir, filter });
+    await compareNewScreenshotsToRefScreenshots({ dir, filter, threshold });
   } catch (err) {
-    debug(err)
-    throw err
+    debug(err);
+    throw err;
   } finally {
     if (useConnect === false && browser != null) {
-      await browser.close()
+      await browser.close();
     }
   }
 }
 
-module.exports = test
+module.exports = test;
