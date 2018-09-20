@@ -19,8 +19,7 @@ function getPreviewsInPage({ filter, viewport }) {
     }
 
     return [].concat(filter).some(str => {
-      const regexp = new RegExp(str.toLowerCase());
-      return regexp.test(name.toLowerCase());
+      return str.toLowerCase() === name.toLowerCase();
     });
   };
 
