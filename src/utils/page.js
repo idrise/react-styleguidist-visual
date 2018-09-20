@@ -30,7 +30,7 @@ function getPreviewsInPage({ filter, viewport }) {
     const description = el.dataset.description;
     const actionStates = el.dataset.actionStates;
     const previewSelector = el.dataset.previewSelector;
-    console.log(JSON.stringify(el.boundingBox(), null, 2));
+    console.log(JSON.stringify(el.getBoundingClientRect(), null, 2));
     if (!shouldIncludePreview(name)) {
       return memo;
     }
@@ -147,7 +147,7 @@ async function triggerAction(page, el, actionState) {
       await actionEl.click();
       break;
     case "mouseDown":
-      const box = await actionEl.boundingBox();
+      const box = await actionEl.getBoundingClientRect();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.down();
       break;
